@@ -16,7 +16,6 @@ class Program
     private const int PlayerWidth = 15;
     private const int PlayerHeight = 75;
     private const float PlayerSpeed = 1;
-    private const float BallSpeedModifier = 1;
     private const int BallSize = 10;
     private const int screenWidth = 858;
     private const int screenHeight = 525;
@@ -47,9 +46,9 @@ class Program
                 {
                     _gameStarted = true;
                     Random rand = new Random();
-                    ballAngle = rand.Next(0, 360);
-                    ballSpeed.X = (int)Math.Round(Math.Sin(ballAngle * 0.0175f));   //*0.0175 to convert to rad
-                    ballSpeed.Y = (int)Math.Round(-Math.Cos(ballAngle * 0.0175f));
+                    ballAngle = rand.Next(45, 135) * (rand.Next(0, 2) * 2 - 1);
+                    BallAngleToSpeed();
+                    //Console.WriteLine($"{ballSpeed.X}, {ballSpeed.Y}, {ballAngle}");
                 }
             }
             else
@@ -69,8 +68,63 @@ class Program
                 else if (_p2Pos > screenHeight - PlayerHeight) { _p2Pos = screenHeight - PlayerHeight;}
                 
                 //Move the ball
-                ballPos.X += (int)Math.Round(ballSpeed.X * BallSpeedModifier * 4);
-                ballPos.Y += (int)Math.Round(ballSpeed.Y * BallSpeedModifier * 4);
+                ballPos.X += ballSpeed.X;
+                ballPos.Y += ballSpeed.Y;
+                
+                //Check if the ball hit an edge
+                if (ballPos.Y > screenHeight - BallSize)
+                {
+                    ballSpeed.Y = -ballSpeed.Y;
+                }
+                else if (ballPos.Y < 0)
+                {
+                    ballSpeed.Y = -ballSpeed.Y;
+                }
+                
+                //Check if the ball hit a player
+                //  According to original PONG, a ball bounces 75deg when it hits the corner,
+                //  0deg when it hits the middle
+                //  In this version, I use 60deg, as signified by the *30f in the ugly equation
+                if (ballPos.X < 10 + PlayerWidth && ballPos.Y > _p1Pos - BallSize && ballPos.Y < _p1Pos + PlayerHeight)
+                {
+                    ballPos.X = 10 + PlayerWidth;
+                    Console.WriteLine("P1 hit");
+                    int bounceCoeficient = ballPos.Y - _p1Pos + BallSize;
+                    int relativeBounceoffAngle =
+                        (int)Math.Round((
+                            Math.Cos( 2 * Math.PI * bounceCoeficient / (PlayerHeight + BallSize) )
+                             + 1) * 30f);     
+                    if (ballAngle > 90)
+                    {
+                        ballAngle = relativeBounceoffAngle;
+                    }
+                    else
+                    {
+                        ballAngle = 90 + relativeBounceoffAngle;
+                    }
+                    BallAngleToSpeed();
+                    Console.WriteLine(ballAngle);
+                }
+                else if (ballPos.X > screenWidth - 10 - PlayerWidth - BallSize && ballPos.Y > _p2Pos - BallSize && ballPos.Y < _p2Pos + PlayerHeight)
+                {
+                    ballPos.X = screenWidth - 10 - PlayerWidth - BallSize;
+                    Console.WriteLine("P2 hit");
+                    int bounceCoeficient = ballPos.Y - _p2Pos + BallSize;
+                    int relativeBounceoffAngle =
+                        (int)Math.Round((
+                            Math.Cos( 2 * Math.PI * bounceCoeficient / (PlayerHeight + BallSize) )
+                            + 1) * 30f);     
+                    if (ballAngle < -90)
+                    {
+                        ballAngle = -relativeBounceoffAngle;
+                    }
+                    else
+                    {
+                        ballAngle = -90 - relativeBounceoffAngle;
+                    }
+                    BallAngleToSpeed();
+                    Console.WriteLine(ballAngle);
+                }
             }
             
             //DRAW PLAYERS & BALL
@@ -86,10 +140,15 @@ class Program
 
     static void SetDefaultGameState()
     {
-        _gameStarted = false;
         _p1Pos = screenHeight / 2 - PlayerHeight / 2;
         _p2Pos = screenHeight / 2 - PlayerHeight / 2;
         ballPos = (screenWidth / 2 - BallSize / 2, screenHeight / 2 - BallSize / 2);
         ballSpeed = (0, 0);
+    }
+
+    static void BallAngleToSpeed()
+    {
+        ballSpeed.X = (int)Math.Round(Math.Sin(ballAngle * 0.0175f) * 10);   //*0.0175 to convert to radians
+        ballSpeed.Y = (int)Math.Round(-Math.Cos(ballAngle * 0.0175f) * 10);
     }
 }
