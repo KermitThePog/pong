@@ -4,6 +4,10 @@ using Raylib_cs;
 
 namespace Pong;
 
+//  PONG by KermitThePog
+//  https://github.com/KermitThePog
+//  Made using Raylib
+
 class Program
 {
     private static int p1Pos;

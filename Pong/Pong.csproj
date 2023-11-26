@@ -5,6 +5,13 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Title>PONG</Title>
+        <Authors>KermitThePog</Authors>
+        <Description>As close to the original as possible</Description>
+        <Company>KermitThePog</Company>
+        <Product>PONG</Product>
+        <AssemblyVersion>1.0</AssemblyVersion>
+        <NeutralLanguage>en-001</NeutralLanguage>
     </PropertyGroup>
 
     <ItemGroup>
